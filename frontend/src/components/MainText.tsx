@@ -24,12 +24,13 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
         {
           latitude,
           longitude,
-          radius: distance,
+          radius: distance * 1609,
         },
       );
 
       setRestaurants(response.data);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -68,12 +69,13 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
         `${import.meta.env.VITE_API_URL}/api/locations/search`,
         {
           postal_code: code,
-          radius: distance,
+          radius: distance * 1609,
         },
       );
 
       setRestaurants(response.data);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -81,11 +83,15 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
   };
 
   return (
-    <div>
-      Know the wait time before you go.
+    <div className="text-center text-white">
+      <h1 className="text-4xl font-bold sm:text-5xl">
+        Know the wait time before you go.
+      </h1>
+
       <p className="mt-6 text-base text-zinc-400 sm:text-lg">
         Search for a place or discover nearby locations with live wait times.
       </p>
+
       <div className="mt-6 flex flex-col items-center">
         <label className="mb-2 text-sm text-zinc-400">
           Search distance: {distance} miles
@@ -100,7 +106,8 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
           className="w-64 accent-white"
         />
       </div>
-      <div className="mt-10 flex items-center gap-4">
+
+      <div className="mt-10 flex items-center justify-center gap-4">
         <button
           className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900 disabled:opacity-50"
           onClick={handleLocation}
@@ -117,6 +124,7 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
           Enter Postal Code
         </button>
       </div>
+
       {showPostalInput && (
         <div className="mt-6 flex w-full max-w-sm gap-3">
           <input
