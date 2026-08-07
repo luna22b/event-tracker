@@ -1,36 +1,41 @@
 import { useState } from "react";
 import axios from "axios";
+
 import type { Restaurant } from "#/types/restaurant";
 
 type MainTextProps = {
   setRestaurants: React.Dispatch<React.SetStateAction<Restaurant[]>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 };
 
-const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
+const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
   const [showPostalInput, setShowPostalInput] = useState(false);
   const [code, setCode] = useState("");
   const [distance, setDistance] = useState(10);
+
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const searchNearbyRestaurants = async (
     latitude: number,
     longitude: number,
   ) => {
+    if (!apiUrl) {
+      setRestaurants([]);
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/locations/nearby`,
-        {
-          latitude,
-          longitude,
-          radius: distance * 1609,
-        },
-      );
+      const response = await axios.post(`${apiUrl}/api/locations/nearby`, {
+        latitude,
+        longitude,
+        radius: distance,
+      });
 
       setRestaurants(response.data);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -38,8 +43,10 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
   };
 
   const handleLocation = () => {
+    if (loading) return;
+
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      alert("Geolocation is not supported by your browser.");
       return;
     }
 
@@ -51,31 +58,38 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
         );
       },
       () => {
-        alert("Unable to get your location.");
+        alert("Unable to get your location. Please allow location access.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
       },
     );
   };
 
   const handleCode = async () => {
+    if (loading) return;
+
     if (!code.trim()) {
-      alert("Please enter a postal code");
+      alert("Please enter a postal code.");
+      return;
+    }
+
+    if (!apiUrl) {
+      setRestaurants([]);
       return;
     }
 
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/locations/search`,
-        {
-          postal_code: code,
-          radius: distance * 1609,
-        },
-      );
+      const response = await axios.post(`${apiUrl}/api/locations/search`, {
+        postal_code: code.trim(),
+        radius: distance,
+      });
 
       setRestaurants(response.data);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -83,9 +97,11 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
   };
 
   return (
-    <div className="text-center mt-20 text-white">
-      <h1 className="text-4xl font-bold sm:text-5xl">
-        Know the wait time before you go.
+    <section className="mx-auto mt-20 flex max-w-4xl flex-col items-center px-4 text-center text-white">
+      <h1 className="text-4xl font-bold leading-tight sm:text-5xl md:text-7xl">
+        Know the wait time
+        <br />
+        before you go.
       </h1>
 
       <p className="mt-6 text-base text-zinc-400 sm:text-lg">
@@ -102,24 +118,27 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
           min="1"
           max="10"
           value={distance}
+          disabled={loading}
           onChange={(e) => setDistance(Number(e.target.value))}
-          className="w-64 accent-white"
+          className="w-64 accent-white disabled:opacity-50"
         />
       </div>
 
       <div className="mt-10 flex items-center justify-center gap-4">
         <button
-          className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900 disabled:opacity-50"
+          disabled={loading}
           onClick={handleLocation}
+          className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Enable Location
+          {loading ? "Searching..." : "Enable Location"}
         </button>
 
         <span className="text-zinc-400">or</span>
 
         <button
-          className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900"
-          onClick={() => setShowPostalInput(!showPostalInput)}
+          disabled={loading}
+          onClick={() => setShowPostalInput((previous) => !previous)}
+          className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Enter Postal Code
         </button>
@@ -130,20 +149,22 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
           <input
             type="text"
             value={code}
+            disabled={loading}
             placeholder="Enter postal code"
-            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none placeholder:text-zinc-500"
             onChange={(e) => setCode(e.target.value)}
+            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none placeholder:text-zinc-500 disabled:opacity-50"
           />
 
           <button
-            className="rounded-xl border border-zinc-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-600"
+            disabled={loading}
             onClick={handleCode}
+            className="cursor-pointer rounded-xl border border-zinc-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Search
+            {loading ? "..." : "Search"}
           </button>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

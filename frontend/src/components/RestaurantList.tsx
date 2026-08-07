@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import LoadingSpinner from "./LoadingSpinner";
 import type { Restaurant } from "#/types/restaurant";
 
@@ -65,7 +66,11 @@ const RestaurantList = ({
   const visibleRestaurants = sortedRestaurants.slice(0, visibleCount);
 
   if (loading) {
-    return <LoadingSpinner text="Finding restaurants nearby..." />;
+    return (
+      <div className="mt-16 flex justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
@@ -79,7 +84,7 @@ const RestaurantList = ({
             setSearch(e.target.value);
             setVisibleCount(10);
           }}
-          className="w-full rounded-xl border border-zinc-700 px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-emerald-500"
+          className="w-full rounded-xl border border-zinc-700 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-emerald-500"
         />
 
         <select
@@ -171,7 +176,7 @@ const RestaurantList = ({
         ))}
 
         {visibleRestaurants.length === 0 && (
-          <p className="col-span-full text-center text-zinc-500 mb-50">
+          <p className="col-span-full mb-20 text-center text-zinc-500">
             No restaurants found
           </p>
         )}

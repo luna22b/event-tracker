@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import MainText from "#/components/MainText";
-import Navbar from "#/components/Navbar";
 import RestaurantList from "#/components/RestaurantList";
 import RestaurantModal from "#/components/RestaurantModal";
 import type { Restaurant } from "#/types/restaurant";
@@ -13,7 +12,6 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-
   const [loading, setLoading] = useState(false);
 
   const [selectedRestaurant, setSelectedRestaurant] =
@@ -43,10 +41,12 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      <Navbar />
-
       <main className="flex flex-col items-center px-4">
-        <MainText setRestaurants={setRestaurants} setLoading={setLoading} />
+        <MainText
+          setRestaurants={setRestaurants}
+          setLoading={setLoading}
+          loading={loading}
+        />
 
         <RestaurantList
           restaurants={restaurants}
