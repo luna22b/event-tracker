@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingSpinner from "./LoadingSpinner";
 import type { Restaurant } from "#/types/restaurant";
@@ -7,28 +7,73 @@ type Props = {
   restaurants: Restaurant[];
   loading: boolean;
   onSelectRestaurant: (restaurant: Restaurant) => void;
+  updateRestaurantWait: (
+    id: number,
+    wait_time: number,
+    report_count?: number,
+    confidence?: string,
+    last_updated?: string,
+  ) => void;
 };
 
 const RestaurantList = ({
   restaurants,
   loading,
   onSelectRestaurant,
+  updateRestaurantWait,
 }: Props) => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("active");
   const [visibleCount, setVisibleCount] = useState(10);
 
+  useEffect(() => {
+    const wsUrl = import.meta.env.VITE_WS_URL;
+
+    if (!wsUrl || restaurants.length === 0) {
+      return;
+    }
+
+    const sockets: WebSocket[] = [];
+
+    restaurants.slice(0, visibleCount).forEach((restaurant) => {
+      const socket = new WebSocket(`${wsUrl}/ws/restaurants/${restaurant.id}`);
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.restaurant_id !== restaurant.id) {
+            return;
+          }
+
+          updateRestaurantWait(
+            restaurant.id,
+            data.wait_time,
+            data.report_count,
+            data.confidence,
+            data.last_updated,
+          );
+        } catch {}
+      };
+
+      sockets.push(socket);
+    });
+
+    return () => {
+      sockets.forEach((socket) => {
+        socket.close();
+      });
+    };
+  }, [restaurants, visibleCount, updateRestaurantWait]);
+
   const getConfidenceColor = (confidence?: string) => {
     switch (confidence?.toLowerCase()) {
       case "high":
         return "bg-emerald-500/10 text-emerald-400";
-
       case "medium":
         return "bg-yellow-500/10 text-yellow-400";
-
       case "low":
         return "bg-red-500/10 text-red-400";
-
       default:
         return "bg-zinc-800 text-zinc-400";
     }
@@ -67,15 +112,15 @@ const RestaurantList = ({
 
   if (loading) {
     return (
-      <div className="mt-16 flex justify-center">
+      <div className="flex justify-center py-12">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-4xl">
-      <div className="mb-5 flex gap-3">
+    <div className="w-full">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <input
           type="text"
           placeholder="Search restaurants..."
@@ -186,7 +231,7 @@ const RestaurantList = ({
         <div className="mb-8 mt-6 flex justify-center">
           <button
             onClick={() => setVisibleCount((prev) => prev + 10)}
-            className="rounded-xl border border-zinc-700 px-6 py-2 text-sm text-white transition hover:bg-zinc-900"
+            className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-2 text-sm text-white transition hover:bg-zinc-900"
           >
             Load More
           </button>

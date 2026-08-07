@@ -37,11 +37,25 @@ function Home() {
           : restaurant,
       ),
     );
+
+    setSelectedRestaurant((currentRestaurant) => {
+      if (!currentRestaurant || currentRestaurant.id !== id) {
+        return currentRestaurant;
+      }
+
+      return {
+        ...currentRestaurant,
+        wait_time,
+        report_count,
+        confidence,
+        last_updated,
+      };
+    });
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <main className="flex flex-col items-center px-4">
+    <div>
+      <main>
         <MainText
           setRestaurants={setRestaurants}
           setLoading={setLoading}
@@ -52,6 +66,7 @@ function Home() {
           restaurants={restaurants}
           loading={loading}
           onSelectRestaurant={setSelectedRestaurant}
+          updateRestaurantWait={updateRestaurantWait}
         />
       </main>
 
@@ -65,3 +80,5 @@ function Home() {
     </div>
   );
 }
+
+export default Home;
