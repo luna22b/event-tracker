@@ -10,10 +10,8 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    # Add your deployed frontend URL here later:
-    # "https://your-frontend.vercel.app",
+    "https://waitless-tracker.onrender.com",
 ]
-
 
 app.add_middleware(
     CORSMiddleware,
