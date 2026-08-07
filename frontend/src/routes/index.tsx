@@ -5,6 +5,7 @@ import MainText from "#/components/MainText";
 import RestaurantList from "#/components/RestaurantList";
 import RestaurantModal from "#/components/RestaurantModal";
 import type { Restaurant } from "#/types/restaurant";
+import Navbar from "#/components/Navbar";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -56,6 +57,7 @@ function Home() {
   return (
     <div>
       <main>
+        <Navbar />
         <MainText
           setRestaurants={setRestaurants}
           setLoading={setLoading}

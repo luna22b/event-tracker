@@ -112,15 +112,29 @@ const RestaurantList = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex w-full justify-center">
         <LoadingSpinner />
       </div>
     );
   }
 
+  if (restaurants.length === 0) {
+    return (
+      <div className="flex w-full flex-col items-center justify-center px-4 py-10 text-center">
+        <p className="text-lg text-zinc-400">
+          Enable location or enter a postal code to view nearby restaurants.
+        </p>
+
+        <p className="mt-2 text-sm text-zinc-500">
+          Choose a search option above to find restaurants in your area.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+    <div className="mx-auto w-full max-w-5xl px-4">
+      <div className="mb-6 mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <input
           type="text"
           placeholder="Search restaurants..."
@@ -129,7 +143,7 @@ const RestaurantList = ({
             setSearch(e.target.value);
             setVisibleCount(10);
           }}
-          className="w-full rounded-xl border border-zinc-700 bg-black px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-emerald-500"
+          className="w-full max-w-sm rounded-lg border border-zinc-700 bg-black px-4 py-2.5 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-emerald-500"
         />
 
         <select
@@ -138,7 +152,7 @@ const RestaurantList = ({
             setSort(e.target.value);
             setVisibleCount(10);
           }}
-          className="rounded-xl border border-zinc-700 bg-black px-3 text-white outline-none"
+          className="w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white outline-none sm:w-auto"
         >
           <option className="bg-black text-white" value="active">
             Active
@@ -163,7 +177,7 @@ const RestaurantList = ({
           <div
             key={restaurant.id}
             onClick={() => onSelectRestaurant(restaurant)}
-            className="cursor-pointer rounded-2xl border border-zinc-800 p-4 transition hover:border-emerald-500/50 hover:bg-zinc-900"
+            className="w-full cursor-pointer rounded-2xl border border-zinc-800 p-4 transition hover:border-emerald-500/50 hover:bg-zinc-900"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
@@ -222,7 +236,7 @@ const RestaurantList = ({
 
         {visibleRestaurants.length === 0 && (
           <p className="col-span-full mb-20 text-center text-zinc-500">
-            No restaurants found
+            No restaurants match your search.
           </p>
         )}
       </div>

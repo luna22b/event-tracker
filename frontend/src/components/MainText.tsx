@@ -14,28 +14,25 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
   const [code, setCode] = useState("");
   const [distance, setDistance] = useState(10);
 
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   const searchNearbyRestaurants = async (
     latitude: number,
     longitude: number,
   ) => {
-    if (!apiUrl) {
-      setRestaurants([]);
-      return;
-    }
-
     try {
       setLoading(true);
 
-      const response = await axios.post(`${apiUrl}/api/locations/nearby`, {
-        latitude,
-        longitude,
-        radius: distance,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/locations/nearby`,
+        {
+          latitude,
+          longitude,
+          radius: distance,
+        },
+      );
 
       setRestaurants(response.data);
-    } catch {
+    } catch (error) {
+      console.error("Nearby search failed:", error);
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -46,7 +43,7 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
     if (loading) return;
 
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      alert("Geolocation is not supported by your browser");
       return;
     }
 
@@ -58,11 +55,7 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
         );
       },
       () => {
-        alert("Unable to get your location. Please allow location access.");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
+        alert("Unable to get your location.");
       },
     );
   };
@@ -71,25 +64,24 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
     if (loading) return;
 
     if (!code.trim()) {
-      alert("Please enter a postal code.");
-      return;
-    }
-
-    if (!apiUrl) {
-      setRestaurants([]);
+      alert("Please enter a postal code");
       return;
     }
 
     try {
       setLoading(true);
 
-      const response = await axios.post(`${apiUrl}/api/locations/search`, {
-        postal_code: code.trim(),
-        radius: distance,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/locations/search`,
+        {
+          postal_code: code,
+          radius: distance,
+        },
+      );
 
       setRestaurants(response.data);
-    } catch {
+    } catch (error) {
+      console.error("Postal search failed:", error);
       setRestaurants([]);
     } finally {
       setLoading(false);
@@ -137,7 +129,7 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
 
         <button
           disabled={loading}
-          onClick={() => setShowPostalInput((previous) => !previous)}
+          onClick={() => setShowPostalInput(!showPostalInput)}
           className="cursor-pointer rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-white transition hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Enter Postal Code
@@ -158,7 +150,7 @@ const MainText = ({ setRestaurants, setLoading, loading }: MainTextProps) => {
           <button
             disabled={loading}
             onClick={handleCode}
-            className="cursor-pointer rounded-xl border border-zinc-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-zinc-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "..." : "Search"}
           </button>
