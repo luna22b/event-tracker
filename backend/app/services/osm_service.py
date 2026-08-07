@@ -17,6 +17,8 @@ OVERPASS_URL = os.getenv("OVERPASS_URL")
 
 async def fetch_from_osm(latitude, longitude, radius_meters=3000):
 
+    print("OVERPASS URL:", OVERPASS_URL)
+
     query = f"""
     [out:json][timeout:90];
 
@@ -29,20 +31,30 @@ async def fetch_from_osm(latitude, longitude, radius_meters=3000):
     out center;
     """
 
-
-    timeout = httpx.Timeout(120.0)
+    timeout = httpx.Timeout(
+        connect=30.0,
+        read=120.0,
+        write=30.0,
+        pool=30.0
+    )
 
     async with httpx.AsyncClient(timeout=timeout) as client:
+        try:
+            response = await client.post(
+                OVERPASS_URL,
+                data={
+                    "data": query
+                },
+                headers={
+                    "User-Agent": "Waitless-App/1.0"
+                }
+            )
 
-        response = await client.post(
-            OVERPASS_URL,
-            data={
-                "data": query
-            },
-            headers={
-                "User-Agent": "Waitless-App/1.0"
-            }
-        )
+            print("OVERPASS STATUS:", response.status_code)
+
+        except Exception as e:
+            print("OVERPASS FAILED:", repr(e))
+            raise
 
 
     if response.status_code != 200:
