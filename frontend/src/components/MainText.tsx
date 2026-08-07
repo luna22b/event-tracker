@@ -81,7 +81,7 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
   };
 
   return (
-    <section>
+    <div>
       Know the wait time before you go.
       <p className="mt-6 text-base text-zinc-400 sm:text-lg">
         Search for a place or discover nearby locations with live wait times.
@@ -135,7 +135,7 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
           </button>
         </div>
       )}
-    </section>
+    </div>
   );
 };
 
