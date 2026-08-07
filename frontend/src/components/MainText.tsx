@@ -83,7 +83,7 @@ const MainText = ({ setRestaurants, setLoading }: MainTextProps) => {
   };
 
   return (
-    <div className="text-center text-white">
+    <div className="text-center mt-20 text-white">
       <h1 className="text-4xl font-bold sm:text-5xl">
         Know the wait time before you go.
       </h1>
