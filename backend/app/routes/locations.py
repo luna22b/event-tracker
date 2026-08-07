@@ -16,38 +16,28 @@ router = APIRouter()
 
 
 @router.post(
-    "/search",
-    response_model=list[RestaurantResponse]
+"/search",
+response_model=list[RestaurantResponse]
 )
 async def get_postal_code(
     request: PostalCodeRequest
 ):
 
+    print("START SEARCH")
+
     coordinates = get_coordinates(
         request.postal_code
     )
 
-    if coordinates is None:
-        return []
-
-
-    radius_meters = request.radius * 1609.34
-
+    print("COORDS:", coordinates)
 
     nearby = await find_nearby_restaurants(
         coordinates["latitude"],
         coordinates["longitude"],
-        radius_meters
+        request.radius * 1609.34
     )
 
-
-    if len(nearby) == 0:
-        nearby = await fetch_and_store_restaurants(
-            coordinates["latitude"],
-            coordinates["longitude"],
-            radius_meters
-        )
-
+    print("DATABASE RESULTS:", len(nearby))
 
     return nearby
 
