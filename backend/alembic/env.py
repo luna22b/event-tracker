@@ -7,6 +7,7 @@ from alembic import context
 
 from app.database.db import Base
 from app.database.models.restaurant import Restaurant
+from app.database.models.wait_report import WaitReport
 
 import os
 from dotenv import load_dotenv
